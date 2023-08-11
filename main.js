@@ -2,25 +2,28 @@
 const cheerio = require("cheerio");
 const Knwl = require("knwl.js");
 const prompt = require("prompt-sync")();
-const https = require('node:https');
+const axios = require('axios')
 
-
-const httpdoc = [];     //Array storing HTTP code
-
-//EXAMPLE CODE - TRIES TO GET HTML FROM WEBSITE
-//Here is where I encounter 403 errors
-https.get('https://www.bbc.co.uk/', (res) => {
-
-  res.on('data', (d) => {
-    httpdoc.push(d);
-  });
-  res.on('end', (d) => {
-    console.log(httpdoc.join());
-  });
-}).on('error', (e) => {
-  console.error(e);
-}); 
-
+//EXAMPLE CODE FOR FETCHING HTML AND EXTRACTING DATA
+async function scrapeData() {
+    try {
+      // Fetch HTML of the page we want to scrape
+      const { data } = await axios.get("https://www.khaoscontrol.com/");
+      // Load HTML we fetched in the previous line
+      const $ = cheerio.load(data);
+      // Select all the list items in plainlist class
+      let siteText = $.text();
+      let knwlInstance = new Knwl('english');
+      knwlInstance.init(siteText);
+      let emails = knwlInstance.get('places');
+      console.log(siteText);
+      // Write countries array in countries.json file
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  // Invoke the above function
+scrapeData();
 
 const blockedDomains = ["hotmail", "gmail", "outlook", "aol", "proton", "yahoo", "icloud"]; //Array of personal email providers to block
 
