@@ -4,31 +4,20 @@ const Knwl = require("knwl.js");
 const prompt = require("prompt-sync")();
 const axios = require('axios')
 
-//EXAMPLE CODE FOR FETCHING HTML AND EXTRACTING DATA
-async function scrapeData() {
-    try {
-      // Fetch HTML of the page we want to scrape
-      const { data } = await axios.get("https://www.khaoscontrol.com/");
-      // Load HTML we fetched in the previous line
-      const $ = cheerio.load(data);
-      // Select all the list items in plainlist class
-      let siteText = $.text();
-      let knwlInstance = new Knwl('english');
-      knwlInstance.init(siteText);
-      let emails = knwlInstance.get('places');
-      console.log(siteText);
-      // Write countries array in countries.json file
-    } catch (err) {
-      console.error(err);
-    }
-  }
-  // Invoke the above function
-scrapeData();
+
 
 const blockedDomains = ["hotmail", "gmail", "outlook", "aol", "proton", "yahoo", "icloud"]; //Array of personal email providers to block
+let knwlInstance = new Knwl('english');
 
 //Promps user to input email and extracts domain name
 let inputEmail = prompt("Please enter the email that you would like to find the company of: ");
+knwlInstance.init(inputEmail);
+if((knwlInstance.get("emails")).length == 0)
+{
+  console.log("Invalid email entered.")
+  return;
+}
+
 let indexOfAt = inputEmail.indexOf("@");
 let indexOfDomainEnd = inputEmail.indexOf(".", indexOfAt);
 let domain = inputEmail.slice(indexOfAt + 1, indexOfDomainEnd);
@@ -41,4 +30,35 @@ if(blockedDomains.includes(domain))
     return;
 }
 
-console.log("Company not found. Did you type the correct email?");  //Output if email completely unrecognised
+//Function to scrape data based on email address
+async function scrapeData() {
+  try {
+    const { data } = await axios.get("https://www." + domainSite);  //Creates link from domain in email and gets http
+
+    //Makes data ready to extract information from
+    const $ = cheerio.load(data);
+    let siteText = $.text();
+    knwlInstance.init(siteText);
+
+    //Gets emails from data and removed duplicates
+    let scrapedEmails = knwlInstance.get('emails');
+    let emails = [];
+    for(const emailElement of scrapedEmails)
+    {
+      if(!emails.includes(emailElement["address"]))
+      {
+        emails.push(emailElement["address"]);
+      }
+    }
+    
+    //Print all information
+    console.log("\nScraped emails:\n" + emails.join().replaceAll(",", "\n"));
+
+  } catch (err) {
+    console.error(err); //Informs user of error
+  }
+}
+// Invoke the above function
+scrapeData();
+
+
