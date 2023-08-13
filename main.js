@@ -7,7 +7,7 @@ const axios = require('axios')
 
 
 const blockedDomains = ["hotmail", "gmail", "outlook", "aol", "proton", "yahoo", "icloud"]; //Array of personal email providers to block
-let knwlInstance = new Knwl('english');
+let knwlInstance = new Knwl('english'); //Initialise Knwl to english language setting
 
 //Promps user to input email and extracts domain name
 let inputEmail = prompt("Please enter the email that you would like to find the company of: ");
@@ -43,6 +43,7 @@ async function scrapeData() {
     //Gets emails from data and removed duplicates
     let scrapedEmails = knwlInstance.get('emails');
     let emails = [];
+
     for(const emailElement of scrapedEmails)
     {
       if(!emails.includes(emailElement["address"]))
@@ -50,12 +51,36 @@ async function scrapeData() {
         emails.push(emailElement["address"]);
       }
     }
-    
+
+    //Get phone numbers from data and remove duplicates
+    let scrapedPhones = knwlInstance.get('phones');
+    let phones = [];
+
+    for(const phoneElement of scrapedPhones)
+    {
+      if(!phones.includes(phoneElement["phone"]))
+      {
+        phones.push(phoneElement["phone"]);
+      }
+    }
+
     //Print all information
-    console.log("\nScraped emails:\n" + emails.join().replaceAll(",", "\n"));
+    if(emails.length == 0)
+    {
+      console.log("\nNo emails found\n");
+    } else{
+      console.log("\nScraped emails:\n" + emails.join().replaceAll(",", "\n"));
+    }
+
+    if(phones.length == 0)
+    {
+      console.log("\nNo phone numbers found\n");
+    } else{
+      console.log("\nScraped phone numbers:\n" + phones.join().replaceAll(",", "\n"));
+    }
 
   } catch (err) {
-    console.error(err); //Informs user of error
+    console.log("Error encountered while searching for domain. There may have been an error in the email, or the internet connection.");
   }
 }
 // Invoke the above function
