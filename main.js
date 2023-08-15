@@ -4,8 +4,6 @@ const Knwl = require("knwl.js");
 const prompt = require("prompt-sync")();
 const axios = require('axios')
 
-
-
 const blockedDomains = ["hotmail", "gmail", "outlook", "aol", "proton", "yahoo", "icloud"]; //Array of personal email providers to block
 let knwlInstance = new Knwl('english'); //Initialise Knwl to english language setting
 
@@ -35,6 +33,7 @@ async function scrapeData() {
   try {
     const response = await axios.get("https://www." + domainSite);  //Creates link from domain in email and gets http
     const html = response.data;
+    
     //Makes data ready to extract information from
     const $ = cheerio.load(html);
     let siteText = $.text();
@@ -63,7 +62,19 @@ async function scrapeData() {
         phones.push(phoneElement[0].replaceAll(" ", ""));
       }
     }
-    
+
+    //Get post codes from data and remove duplicates
+    const scrapedPostCodes = [...siteText.matchAll(/[A-Za-z][A-Za-z]?\d\d?\s\d[A-Za-z][A-Za-z]/g)]; //Regex to find postcodes
+    let postCodes = [];
+
+    for(const postCodeElement of scrapedPostCodes)
+    {
+      if(!postCodes.includes(postCodeElement[0]))
+      {
+        postCodes.push(postCodeElement[0]);
+      }
+    }
+
     //Print all information
     if(emails.length == 0)
     {
@@ -77,6 +88,13 @@ async function scrapeData() {
       console.log("\nNo phone numbers found\n");
     } else{
       console.log("\nScraped phone numbers:\n" + phones.join().replaceAll(",", "\n"));
+    }
+
+    if(postCodes.length == 0)
+    {
+      console.log("\nNo post codes found\n");
+    } else{
+      console.log("\nScraped post codes:\n" + postCodes.join().replaceAll(",", "\n"));
     }
 
   } catch (err) {
