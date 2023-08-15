@@ -33,10 +33,10 @@ if(blockedDomains.includes(domain))
 //Function to scrape data based on email address
 async function scrapeData() {
   try {
-    const { data } = await axios.get("https://www." + domainSite);  //Creates link from domain in email and gets http
-
+    const response = await axios.get("https://www." + domainSite);  //Creates link from domain in email and gets http
+    const html = response.data;
     //Makes data ready to extract information from
-    const $ = cheerio.load(data);
+    const $ = cheerio.load(html);
     let siteText = $.text();
     knwlInstance.init(siteText);
 
@@ -53,17 +53,17 @@ async function scrapeData() {
     }
 
     //Get phone numbers from data and remove duplicates
-    let scrapedPhones = knwlInstance.get('phones');
+    const scrapedPhones = [...siteText.matchAll(/(\+44\s?)?\(?0?\)?\d\d\d\s?\d\s?\d\d\s?\d\d\d\d/g)];  //Regex to find common phone number formats
     let phones = [];
 
     for(const phoneElement of scrapedPhones)
     {
-      if(!phones.includes(phoneElement["phone"]))
+      if(!phones.includes(phoneElement[0].replaceAll(" ", "")))
       {
-        phones.push(phoneElement["phone"]);
+        phones.push(phoneElement[0].replaceAll(" ", ""));
       }
     }
-
+    
     //Print all information
     if(emails.length == 0)
     {
@@ -81,6 +81,7 @@ async function scrapeData() {
 
   } catch (err) {
     console.log("Error encountered while searching for domain. There may have been an error in the email, or the internet connection.");
+    console.error(err);
   }
 }
 // Invoke the above function
