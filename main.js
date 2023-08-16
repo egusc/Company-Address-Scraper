@@ -63,7 +63,7 @@ async function scrapeData() {
       }
     }
 
-    //Get post codes from data and remove duplicates
+    //Get post code from data and search for address based on that, and remove duplicates
     const scrapedAddresses = [...siteText.matchAll(/[A-Za-z][A-Za-z]?\d\d?\s\d[A-Za-z][A-Za-z]/g)]; //Regex to find postcodes
     let addresses = [];
 
