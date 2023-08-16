@@ -57,7 +57,7 @@ async function scrapeData() {
 
     for(const phoneElement of scrapedPhones)
     {
-      if(!phones.includes(phoneElement[0].replaceAll(" ", "")))
+      if(!phones.includes(phoneElement[0].replaceAll(" ", "")))   //Removes spaces to reduce duplicate phone numbers with different spacing
       {
         phones.push(phoneElement[0].replaceAll(" ", ""));
       }
@@ -75,7 +75,7 @@ async function scrapeData() {
       }
     }
 
-    //Print all information
+    //Print all information scraped and notifies if no information was found
     if(emails.length == 0)
     {
       console.log("\nNo emails found\n");
@@ -98,6 +98,7 @@ async function scrapeData() {
     }
 
   } catch (err) {
+    //Inform users of errors
     console.log("Error encountered while searching for domain. There may have been an error in the email, or the internet connection.");
     console.error(err);
   }
