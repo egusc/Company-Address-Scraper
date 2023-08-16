@@ -52,7 +52,7 @@ async function scrapeData() {
     }
 
     //Get phone numbers from data and remove duplicates
-    const scrapedPhones = [...siteText.matchAll(/(\+44\s?)?\(?0?\)?\d\d\d\s?\d\s?\d\d\s?\d\d\d\d/g)];  //Regex to find common phone number formats
+    const scrapedPhones = [...siteText.matchAll(/((\+44\s?)|\(?0\)?)\d\d\d\s?\d\s?\d\d\s?\d\d\d\d/g)];  //Regex to find common phone number formats
     let phones = [];
 
     for(const phoneElement of scrapedPhones)
@@ -64,14 +64,14 @@ async function scrapeData() {
     }
 
     //Get post codes from data and remove duplicates
-    const scrapedPostCodes = [...siteText.matchAll(/[A-Za-z][A-Za-z]?\d\d?\s\d[A-Za-z][A-Za-z]/g)]; //Regex to find postcodes
-    let postCodes = [];
+    const scrapedAddresses = [...siteText.matchAll(/[A-Za-z][A-Za-z]?\d\d?\s\d[A-Za-z][A-Za-z]/g)]; //Regex to find postcodes
+    let addresses = [];
 
-    for(const postCodeElement of scrapedPostCodes)
+    for(const postCodeElement of scrapedAddresses)
     {
-      if(!postCodes.includes(postCodeElement[0]))
+      if(!addresses.includes($('p:contains("' + postCodeElement[0] + '")').first().text()))
       {
-        postCodes.push(postCodeElement[0]);
+        addresses.push($('p:contains("' + postCodeElement[0] + '")').first().text());
       }
     }
 
@@ -90,13 +90,12 @@ async function scrapeData() {
       console.log("\nScraped phone numbers:\n" + phones.join().replaceAll(",", "\n"));
     }
 
-    if(postCodes.length == 0)
+    if(addresses.length == 0)
     {
       console.log("\nNo post codes found\n");
     } else{
-      console.log("\nScraped post codes:\n" + postCodes.join().replaceAll(",", "\n"));
+      console.log("\nScraped addresses:\n" + addresses.join().replaceAll(",", "\n"));
     }
-
   } catch (err) {
     //Inform users of errors
     console.log("Error encountered while searching for domain. There may have been an error in the email, or the internet connection.");
