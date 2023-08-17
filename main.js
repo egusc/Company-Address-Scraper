@@ -80,7 +80,7 @@ async function scrapeData() {
     {
       console.log("\nNo emails found\n");
     } else{
-      console.log("\nScraped emails:\n" + emails.join().replaceAll(",", "\n"));
+      console.log("\nScraped emails:\n" + emails.join().replaceAll(",", "\n")); 
     }
 
     if(phones.length == 0)
@@ -94,11 +94,10 @@ async function scrapeData() {
     {
       console.log("\nNo post codes found\n");
     } else{
-      console.log("\nScraped addresses:\n" + addresses.join().replaceAll(",", "\n"));
+      console.log("\nScraped addresses:\n" + addresses.join().replaceAll(/(, )|,/g, "\n") + "\n"); //Regex to replace (, ) and (,) with new lines to avoid odd spacing
     }
   } catch (err) {
     //Inform users of errors
-    console.log("Error encountered while searching for domain. There may have been an error in the email, or the internet connection.");
     console.error(err);
   }
 }
